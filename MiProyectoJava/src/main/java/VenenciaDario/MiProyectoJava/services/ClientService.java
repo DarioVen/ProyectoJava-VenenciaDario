@@ -10,27 +10,39 @@ import java.util.List;
 public class ClientService {
     @Autowired
     private final JdbcTemplate jdbc;
+
     public ClientService(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
 
-    public List<Client> getAllClients() {
-        return jdbc.query(
-            "SELECT * FROM CLIENTS",
-            (rs, rowNum) -> new Client(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("badname"),
-                    rs.getString("docnumber")
-            )
-        );
+            public List<Client> getAllClients() {
+                try {
+                    return jdbc.query(
+                            "SELECT * FROM CLIENTS",
+                    (rs, rowNum) -> new Client(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("badname"),
+                            rs.getString("docnumber")
+                    )
+            );
+        } catch (Exception e) {
+            // Log the exception and handle it appropriately
+            throw new RuntimeException("Failed to retrieve clients", e);
+        }
     }
+
     public void createClient(Client client) {
-        jdbc.update(
-                "INSERT INTO CLIENTS (name, badname, docnumber) VALUES (?, ?, ?)",
-                client.getName(),
-                client.getBadname(),
-                client.getDocnumber()
-        );
+        try {
+            jdbc.update(
+                    "INSERT INTO CLIENTS (name, badname, docnumber) VALUES (?, ?, ?)",
+                    client.getName(),
+                    client.getBadname(),
+                    client.getDocnumber()
+            );
+        } catch (Exception e) {
+            // Log the exception and handle it appropriately
+            throw new RuntimeException("Failed to create client", e);
+        }
     }
 }
