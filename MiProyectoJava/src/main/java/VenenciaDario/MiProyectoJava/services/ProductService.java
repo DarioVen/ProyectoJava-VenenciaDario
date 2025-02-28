@@ -1,39 +1,57 @@
-
 package VenenciaDario.MiProyectoJava.services;
 
 import VenenciaDario.MiProyectoJava.entities.Product;
-import org.springframework.jdbc.core.JdbcTemplate;
+import VenenciaDario.MiProyectoJava.repositories.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
-    private final JdbcTemplate jdbc;
+    @Autowired
+    private ProductRepository productRepository;
 
-    public ProductService(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
+    public void saveProduct(Product product) {
+        productRepository.save(product);
+    }
+
+    public Optional<Product> getProduct(Long id) {
+        return productRepository.findById(id);
     }
 
     public List<Product> getAllProducts() {
-        return jdbc.query(
-                "SELECT * FROM products",
-                (rs, rowNum) -> new Product(
-                        rs.getInt("id"),
-                        rs.getString("description"),
-                        rs.getString("code"),
-                        rs.getInt("stock"),
-                        rs.getDouble("price")
-                )
-        );
+        return productRepository.findAll();
     }
 
-    public void createProduct(Product product) {
-        jdbc.update(
-                "INSERT INTO products (description, code, stock, price) VALUES (?, ?, ?, ?)",
-                product.getDescription(),
-                product.getCode(),
-                product.getStock(),
-                product.getPrice()
-        );
+    public Optional<Product> updateProduct(Long id, Product product) {
+        Optional<Product> productDB = productRepository.findById(id);
+
+        if (productDB.isEmpty()) {
+            return Optional.empty();
+        }
+
+        productDB.get().setDescription(product.getDescription());
+        productDB.get().setCode(product.getCode());
+        productDB.get().setStock(product.getStock());
+        productDB.get().setPrice(product.getPrice());
+        productDB.get().setInvoiceDetails(product.getInvoiceDetails());
+
+        productRepository.save(productDB.get());
+
+        return productDB;
+    }
+
+    public Optional<Product> deleteProduct(Long id) {
+        Optional<Product> productDB = productRepository.findById(id);
+
+        if (productDB.isEmpty()) {
+            return Optional.empty();
+        }
+
+        productRepository.deleteById(id);
+
+        return productDB;
     }
 }

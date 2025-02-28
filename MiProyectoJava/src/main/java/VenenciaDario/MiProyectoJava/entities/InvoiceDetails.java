@@ -6,11 +6,11 @@ import jakarta.persistence.*;
 @Table(name = "invoice_details")
 public class InvoiceDetails {
 
-    @EmbeddedId
-    private InvoiceDetailId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId("invoiceId")
     @JoinColumn(name = "invoice_id")
     private Invoice invoice;
 
@@ -24,12 +24,10 @@ public class InvoiceDetails {
     @Column(name = "price", nullable = false)
     private double price;
 
-    // Constructor vacío
     public InvoiceDetails() {
     }
 
-    // Constructor con parámetros
-    public InvoiceDetails(InvoiceDetailId id, Invoice invoice, Product product, int quantity, double price) {
+    public InvoiceDetails(Long id, Invoice invoice, Product product, int quantity, double price) {
         this.id = id;
         this.invoice = invoice;
         this.product = product;
@@ -38,11 +36,11 @@ public class InvoiceDetails {
     }
 
     // Getters y Setters
-    public InvoiceDetailId getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(InvoiceDetailId id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -78,7 +76,6 @@ public class InvoiceDetails {
         this.price = price;
     }
 
-    // Método toString
     @Override
     public String toString() {
         return "InvoiceDetails{" +

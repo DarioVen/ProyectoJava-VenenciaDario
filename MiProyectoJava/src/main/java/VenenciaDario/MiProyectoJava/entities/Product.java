@@ -9,7 +9,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "description")
     private String description;
@@ -26,11 +26,9 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InvoiceDetails> invoiceDetails;
 
-    // Constructor vacío (necesario para JPA)
     public Product() {
     }
 
-    // Constructor con todos los campos excepto el id (autoincremental)
     public Product(String description, String code, int stock, double price, List<InvoiceDetails> invoiceDetails) {
         this.description = description;
         this.code = code;
@@ -39,8 +37,7 @@ public class Product {
         this.invoiceDetails = invoiceDetails;
     }
 
-    // Constructor con ID (para objetos existentes)
-    public Product(int id, String description, String code, int stock, double price) {
+    public Product(long id, String description, String code, int stock, double price) {
         this.id = id;
         this.description = description;
         this.code = code;
@@ -48,12 +45,11 @@ public class Product {
         this.price = price;
     }
 
-    // Getters y Setters
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -97,7 +93,6 @@ public class Product {
         this.invoiceDetails = invoiceDetails;
     }
 
-    // Metodo toString para representación en cadena de la entidad
     @Override
     public String toString() {
         return "Product{" +

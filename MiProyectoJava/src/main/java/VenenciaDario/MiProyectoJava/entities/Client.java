@@ -9,7 +9,7 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private long id;
 
     @Column(name = "name")
     private String name;
@@ -23,11 +23,9 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Invoice> invoices;
 
-    // Constructor vacío
     public Client() {
     }
 
-    // Constructor con todos los campos excepto el id (ya que es autoincremental)
     public Client(String name, String badname, String docnumber, List<Invoice> invoices) {
         this.name = name;
         this.badname = badname;
@@ -35,20 +33,17 @@ public class Client {
         this.invoices = invoices;
     }
 
-    // Constructor con ID (para objetos existentes)
-    public Client(int id, String name, String badname, String docnumber) {
+    public Client(long id, String name, String badname, String docnumber) {
         this.id = id;
         this.name = name;
         this.badname = badname;
         this.docnumber = docnumber;
     }
-
-    // Getters y Setters
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -84,7 +79,6 @@ public class Client {
         this.invoices = invoices;
     }
 
-    // Metodo toString para representación en cadena de la entidad
     @Override
     public String toString() {
         return "Client{" +

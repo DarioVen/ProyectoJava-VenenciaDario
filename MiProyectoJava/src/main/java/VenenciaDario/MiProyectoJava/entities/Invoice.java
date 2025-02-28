@@ -25,11 +25,9 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InvoiceDetails> invoiceDetails;
 
-    // Constructor vacío (necesario para JPA)
     public Invoice() {
     }
 
-    // Constructor con todos los campos excepto el id (autoincremental)
     public Invoice(Client client, LocalDateTime createdAt, double total, List<InvoiceDetails> invoiceDetails) {
         this.client = client;
         this.createdAt = createdAt;
@@ -37,7 +35,6 @@ public class Invoice {
         this.invoiceDetails = invoiceDetails;
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -78,7 +75,6 @@ public class Invoice {
         this.invoiceDetails = invoiceDetails;
     }
 
-    // Metodo toString para representación en cadena de la entidad
     @Override
     public String toString() {
         return "Invoice{" +
