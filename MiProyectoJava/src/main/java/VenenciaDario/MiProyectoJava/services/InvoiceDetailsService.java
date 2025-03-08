@@ -33,14 +33,10 @@ public class InvoiceDetailsService {
 
         invoiceDetail.setInvoice(invoice.get());
         invoiceDetail.setProduct(product.get());
-        invoiceDetail.setPrice(product.get().getPrice());
-
-        double subtotal = invoiceDetail.getQuantity() * invoiceDetail.getPrice();
-        Invoice currentInvoice = invoice.get();
-        currentInvoice.setTotal(currentInvoice.getTotal() + subtotal);
 
         invoiceDetailsRepository.save(invoiceDetail);
-        invoiceRepository.save(currentInvoice);
+
+        recalculateInvoiceTotal(invoice.get());
 
         return Optional.of(invoiceDetail);
     }
@@ -60,19 +56,11 @@ public class InvoiceDetailsService {
             return Optional.empty();
         }
 
-        Invoice invoice = invoiceDetailDB.get().getInvoice();
-
-        double oldSubtotal = invoiceDetailDB.get().getQuantity() * invoiceDetailDB.get().getPrice();
-        invoice.setTotal(invoice.getTotal() - oldSubtotal);
-
         invoiceDetailDB.get().setQuantity(invoiceDetail.getQuantity());
-        invoiceDetailDB.get().setPrice(invoiceDetail.getPrice());
-
-        double newSubtotal = invoiceDetailDB.get().getQuantity() * invoiceDetailDB.get().getPrice();
-        invoice.setTotal(invoice.getTotal() + newSubtotal);
 
         invoiceDetailsRepository.save(invoiceDetailDB.get());
-        invoiceRepository.save(invoice);
+
+        recalculateInvoiceTotal(invoiceDetailDB.get().getInvoice());
 
         return invoiceDetailDB;
     }
@@ -86,16 +74,25 @@ public class InvoiceDetailsService {
 
         Invoice invoice = invoiceDetailDB.get().getInvoice();
 
-        double subtotal = invoiceDetailDB.get().getQuantity() * invoiceDetailDB.get().getPrice();
-        invoice.setTotal(invoice.getTotal() - subtotal);
-
         invoiceDetailsRepository.deleteById(id);
-        invoiceRepository.save(invoice);
+
+        recalculateInvoiceTotal(invoice);
 
         return invoiceDetailDB;
     }
 
     public List<InvoiceDetails> getInvoiceDetailsByInvoice(Long invoiceId) {
         return invoiceDetailsRepository.findByInvoiceId(invoiceId);
+    }
+
+    private void recalculateInvoiceTotal(Invoice invoice) {
+        List<InvoiceDetails> details = invoiceDetailsRepository.findByInvoiceId(invoice.getId());
+
+        double total = details.stream()
+                .mapToDouble(detail -> detail.getQuantity() * detail.getProduct().getPrice())
+                .sum();
+
+        invoice.setTotal(total);
+        invoiceRepository.save(invoice);
     }
 }

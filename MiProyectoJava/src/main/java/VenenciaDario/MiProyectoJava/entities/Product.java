@@ -1,7 +1,6 @@
 package VenenciaDario.MiProyectoJava.entities;
 
 import jakarta.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -23,18 +22,14 @@ public class Product {
     @Column(name = "price")
     private double price;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<InvoiceDetails> invoiceDetails;
-
     public Product() {
     }
 
-    public Product(String description, String code, int stock, double price, List<InvoiceDetails> invoiceDetails) {
+    public Product(String description, String code, int stock, double price) {
         this.description = description;
         this.code = code;
         this.stock = stock;
         this.price = price;
-        this.invoiceDetails = invoiceDetails;
     }
 
     public Product(long id, String description, String code, int stock, double price) {
@@ -85,14 +80,6 @@ public class Product {
         this.price = price;
     }
 
-    public List<InvoiceDetails> getInvoiceDetails() {
-        return invoiceDetails;
-    }
-
-    public void setInvoiceDetails(List<InvoiceDetails> invoiceDetails) {
-        this.invoiceDetails = invoiceDetails;
-    }
-
     @Override
     public String toString() {
         return "Product{" +
@@ -101,7 +88,6 @@ public class Product {
                 ", code='" + code + '\'' +
                 ", stock=" + stock +
                 ", price=" + price +
-                ", invoiceDetails=" + invoiceDetails +
                 '}';
     }
 }

@@ -21,18 +21,21 @@ public class InvoiceDetailsController {
 
     @GetMapping()
     public ResponseEntity<List<InvoiceDetails>> getAllInvoiceDetails() {
-        return ResponseEntity.ok(invoiceDetailsService.getAllInvoiceDetails());
+        List<InvoiceDetails> invoiceDetails = invoiceDetailsService.getAllInvoiceDetails();
+        invoiceDetails.forEach(InvoiceDetails::calculateSubtotal);
+        return ResponseEntity.ok(invoiceDetails);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<InvoiceDetails>> getInvoiceDetail(@PathVariable Long id) {
+    public ResponseEntity<InvoiceDetails> getInvoiceDetail(@PathVariable Long id) {
         Optional<InvoiceDetails> invoiceDetail = invoiceDetailsService.getInvoiceDetail(id);
 
         if (invoiceDetail.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(invoiceDetail);
+        invoiceDetail.get().calculateSubtotal();
+        return ResponseEntity.ok(invoiceDetail.get());
     }
 
     @PostMapping("/invoice/{invoiceId}/product/{productId}")
@@ -43,39 +46,44 @@ public class InvoiceDetailsController {
         Optional<InvoiceDetails> savedInvoiceDetail = invoiceDetailsService.saveInvoiceDetail(invoiceId, productId, invoiceDetail);
 
         if (savedInvoiceDetail.isEmpty()) {
-            return ResponseEntity.badRequest().build(); // Factura o producto no encontrado
+            return ResponseEntity.badRequest().build();
         }
 
+        savedInvoiceDetail.get().calculateSubtotal();
         return ResponseEntity.ok(savedInvoiceDetail.get());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Optional<InvoiceDetails>> updateInvoiceDetail(
+    public ResponseEntity<InvoiceDetails> updateInvoiceDetail(
             @PathVariable Long id,
             @RequestBody InvoiceDetails invoiceDetail) {
         Optional<InvoiceDetails> updatedInvoiceDetail = invoiceDetailsService.updateInvoiceDetail(id, invoiceDetail);
 
         if (updatedInvoiceDetail.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Detalle no encontrado
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(updatedInvoiceDetail);
+        updatedInvoiceDetail.get().calculateSubtotal();
+        return ResponseEntity.ok(updatedInvoiceDetail.get());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Optional<InvoiceDetails>> deleteInvoiceDetail(@PathVariable Long id) {
+    public ResponseEntity<InvoiceDetails> deleteInvoiceDetail(@PathVariable Long id) {
         Optional<InvoiceDetails> deletedInvoiceDetail = invoiceDetailsService.deleteInvoiceDetail(id);
 
         if (deletedInvoiceDetail.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Detalle no encontrado
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(deletedInvoiceDetail);
+        deletedInvoiceDetail.get().calculateSubtotal();
+        return ResponseEntity.ok(deletedInvoiceDetail.get());
     }
 
     @GetMapping("/invoice/{invoiceId}")
     public ResponseEntity<List<InvoiceDetails>> getInvoiceDetailsByInvoice(@PathVariable Long invoiceId) {
         List<InvoiceDetails> invoiceDetails = invoiceDetailsService.getInvoiceDetailsByInvoice(invoiceId);
+        // Recalcula el subtotal para cada detalle
+        invoiceDetails.forEach(InvoiceDetails::calculateSubtotal);
         return ResponseEntity.ok(invoiceDetails);
     }
 }

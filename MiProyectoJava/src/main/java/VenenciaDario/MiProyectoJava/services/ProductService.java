@@ -36,7 +36,6 @@ public class ProductService {
         productDB.get().setCode(product.getCode());
         productDB.get().setStock(product.getStock());
         productDB.get().setPrice(product.getPrice());
-        productDB.get().setInvoiceDetails(product.getInvoiceDetails());
 
         productRepository.save(productDB.get());
 

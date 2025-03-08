@@ -1,17 +1,18 @@
 package VenenciaDario.MiProyectoJava.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "invoice_details")
 public class InvoiceDetails {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne
-    @JoinColumn(name = "invoice_id")
+    @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 
     @ManyToOne
@@ -21,18 +22,19 @@ public class InvoiceDetails {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @Column(name = "price", nullable = false)
-    private double price;
+    @Transient
+    private double subtotal;
 
     public InvoiceDetails() {
+        calculateSubtotal();
     }
 
-    public InvoiceDetails(Long id, Invoice invoice, Product product, int quantity, double price) {
+    public InvoiceDetails(Long id, Invoice invoice, Product product, int quantity) {
         this.id = id;
         this.invoice = invoice;
         this.product = product;
         this.quantity = quantity;
-        this.price = price;
+        calculateSubtotal();
     }
 
     // Getters y Setters
@@ -50,6 +52,9 @@ public class InvoiceDetails {
 
     public void setInvoice(Invoice invoice) {
         this.invoice = invoice;
+        if (invoice != null && !invoice.getInvoiceDetails().contains(this)) {
+            invoice.getInvoiceDetails().add(this);
+        }
     }
 
     public Product getProduct() {
@@ -58,6 +63,7 @@ public class InvoiceDetails {
 
     public void setProduct(Product product) {
         this.product = product;
+        calculateSubtotal();
     }
 
     public int getQuantity() {
@@ -66,24 +72,30 @@ public class InvoiceDetails {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+        calculateSubtotal();
     }
 
-    public double getPrice() {
-        return price;
+    public double getSubtotal() {
+        calculateSubtotal();
+        return subtotal;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void calculateSubtotal() {
+        if (this.product != null) {
+            this.subtotal = this.quantity * this.product.getPrice();
+        } else {
+            this.subtotal = 0.0;
+        }
     }
 
     @Override
     public String toString() {
         return "InvoiceDetails{" +
                 "id=" + id +
-                ", invoice=" + invoice +
-                ", product=" + product +
+                ", invoice=" + (invoice != null ? invoice.getId() : null) +
+                ", product=" + (product != null ? product.getId() : null) +
                 ", quantity=" + quantity +
-                ", price=" + price +
+                ", subtotal=" + subtotal +
                 '}';
     }
 }

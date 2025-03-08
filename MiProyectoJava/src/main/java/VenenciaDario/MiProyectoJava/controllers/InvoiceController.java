@@ -25,14 +25,14 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Invoice>> getInvoice(@PathVariable Long id) {
+    public ResponseEntity<Invoice> getInvoice(@PathVariable Long id) {
         Optional<Invoice> invoice = invoiceService.getInvoice(id);
 
         if (invoice.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(invoice);
+        return ResponseEntity.ok(invoice.get());
     }
 
     @PostMapping("/client/{clientId}")
@@ -40,32 +40,32 @@ public class InvoiceController {
         Optional<Invoice> savedInvoice = invoiceService.saveInvoice(clientId, invoice);
 
         if (savedInvoice.isEmpty()) {
-            return ResponseEntity.badRequest().build(); // Cliente no encontrado
+            return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.ok(savedInvoice.get());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Optional<Invoice>> updateInvoice(@PathVariable Long id, @RequestBody Invoice invoice) {
+    public ResponseEntity<Invoice> updateInvoice(@PathVariable Long id, @RequestBody Invoice invoice) {
         Optional<Invoice> updatedInvoice = invoiceService.updateInvoice(id, invoice);
 
         if (updatedInvoice.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Factura no encontrada
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(updatedInvoice);
+        return ResponseEntity.ok(updatedInvoice.get());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Optional<Invoice>> deleteInvoice(@PathVariable Long id) {
+    public ResponseEntity<Invoice> deleteInvoice(@PathVariable Long id) {
         Optional<Invoice> deletedInvoice = invoiceService.deleteInvoice(id);
 
         if (deletedInvoice.isEmpty()) {
-            return ResponseEntity.notFound().build(); // Factura no encontrada
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(deletedInvoice);
+        return ResponseEntity.ok(deletedInvoice.get());
     }
 
     @GetMapping("/client/{clientId}")
