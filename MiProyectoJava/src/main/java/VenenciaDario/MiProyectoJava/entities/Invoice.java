@@ -30,7 +30,7 @@ public class Invoice {
     private double total;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<InvoiceDetails> invoiceDetails = new ArrayList<>();
 
     public Invoice() {

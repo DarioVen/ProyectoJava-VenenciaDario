@@ -39,18 +39,22 @@ public class InvoiceDetailsController {
     }
 
     @PostMapping("/invoice/{invoiceId}/product/{productId}")
-    public ResponseEntity<InvoiceDetails> saveInvoiceDetail(
+    public ResponseEntity<?> saveInvoiceDetail(
             @PathVariable Long invoiceId,
             @PathVariable Long productId,
             @RequestBody InvoiceDetails invoiceDetail) {
-        Optional<InvoiceDetails> savedInvoiceDetail = invoiceDetailsService.saveInvoiceDetail(invoiceId, productId, invoiceDetail);
+        try {
+            Optional<InvoiceDetails> savedInvoiceDetail = invoiceDetailsService.saveInvoiceDetail(invoiceId, productId, invoiceDetail);
 
-        if (savedInvoiceDetail.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            if (savedInvoiceDetail.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            savedInvoiceDetail.get().calculateSubtotal();
+            return ResponseEntity.ok(savedInvoiceDetail.get());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        savedInvoiceDetail.get().calculateSubtotal();
-        return ResponseEntity.ok(savedInvoiceDetail.get());
     }
 
     @PutMapping("/{id}")
@@ -68,15 +72,14 @@ public class InvoiceDetailsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<InvoiceDetails> deleteInvoiceDetail(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteInvoiceDetail(@PathVariable Long id) {
         Optional<InvoiceDetails> deletedInvoiceDetail = invoiceDetailsService.deleteInvoiceDetail(id);
 
         if (deletedInvoiceDetail.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        deletedInvoiceDetail.get().calculateSubtotal();
-        return ResponseEntity.ok(deletedInvoiceDetail.get());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/invoice/{invoiceId}")

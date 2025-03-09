@@ -6,6 +6,7 @@ import VenenciaDario.MiProyectoJava.entities.Product;
 import VenenciaDario.MiProyectoJava.repositories.InvoiceDetailsRepository;
 import VenenciaDario.MiProyectoJava.repositories.InvoiceRepository;
 import VenenciaDario.MiProyectoJava.repositories.ProductRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,10 @@ public class InvoiceDetailsService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
+
     public Optional<InvoiceDetails> saveInvoiceDetail(Long invoiceId, Long productId, InvoiceDetails invoiceDetail) {
         Optional<Invoice> invoice = invoiceRepository.findById(invoiceId);
         Optional<Product> product = productRepository.findById(productId);
@@ -30,6 +35,14 @@ public class InvoiceDetailsService {
         if (invoice.isEmpty() || product.isEmpty()) {
             return Optional.empty();
         }
+
+        if (product.get().getStock() < invoiceDetail.getQuantity()) {
+            throw new RuntimeException("No hay suficiente stock para el producto: " + product.get().getDescription());
+        }
+
+        int newStock = product.get().getStock() - invoiceDetail.getQuantity();
+        product.get().setStock(newStock);
+        productRepository.save(product.get());
 
         invoiceDetail.setInvoice(invoice.get());
         invoiceDetail.setProduct(product.get());
@@ -65,6 +78,7 @@ public class InvoiceDetailsService {
         return invoiceDetailDB;
     }
 
+
     public Optional<InvoiceDetails> deleteInvoiceDetail(Long id) {
         Optional<InvoiceDetails> invoiceDetailDB = invoiceDetailsRepository.findById(id);
 
@@ -73,6 +87,9 @@ public class InvoiceDetailsService {
         }
 
         Invoice invoice = invoiceDetailDB.get().getInvoice();
+
+        entityManager.flush();
+        entityManager.clear();
 
         invoiceDetailsRepository.deleteById(id);
 

@@ -58,14 +58,14 @@ public class InvoiceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Invoice> deleteInvoice(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteInvoice(@PathVariable Long id) {
         Optional<Invoice> deletedInvoice = invoiceService.deleteInvoice(id);
 
         if (deletedInvoice.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(deletedInvoice.get());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/client/{clientId}")
